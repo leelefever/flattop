@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Kitchen Dashboard v0.8 Context Engine</title>
+<title>Kitchen Dashboard v0.9 Live Solar</title>
 <style>
 :root{--bg:#081018;--glow:rgba(83,130,170,.12);--text:#f5f7fa;--muted:#9aa7b4;--faint:#596673;--line:#24303b;--panel:#0c151e;--screen-w:1080px;--screen-h:810px;--preview-scale:1}
 .dashboard[data-theme="morning"]{--bg:#10202b;--glow:rgba(146,194,218,.19);--text:#f5f8fa;--muted:#b1c0c9;--faint:#718792;--line:#314550;--panel:#132630}
@@ -36,6 +36,7 @@ footer{display:flex;justify-content:space-between;align-items:flex-end;border-to
 <aside class="context">
 <button class="contextItem" id="weatherContext" data-open="context1Detail"><div class="label" id="context1Label">Rain at 10</div><div class="primary" id="context1Primary">Likely through early afternoon</div><div class="secondary" id="context1Secondary">Moderate showers</div></button>
 <button class="contextItem" id="calendarContext" data-open="context2Detail"><div class="label" id="context2Label">Next</div><div class="primary" id="context2Primary">Dentist · 9:30</div><div class="secondary" id="context2Secondary">in 2 hours</div></button>
+<button class="contextItem" id="solarContext" data-open="solarDetail" style="display:none"><div class="label" id="solarLabel">Solar</div><div class="primary" id="solarPrimary">—</div><div class="secondary" id="solarSecondary">—</div></button>
 <div class="contextItem timerItem" id="timerItem"><div class="label">Timer</div><div class="timerBig" id="timerReadout">10:00</div><div class="secondary">Kitchen timer</div></div>
 </aside></section>
 <footer><div class="quiet"><button class="quietItem" data-open="quietDetail1"><div class="label" id="quiet1Label">Sunrise</div><div class="quietValue" id="quiet1Value">6:43 AM</div></button><button class="quietItem" data-open="quietDetail2"><div class="label" id="quiet2Label">Water</div><div class="quietValue" id="quiet2Value">No flow</div></button></div><button class="more" data-open="moreDetail">•••</button></footer>
@@ -43,6 +44,7 @@ footer{display:flex;justify-content:space-between;align-items:flex-end;border-to
 <section class="overlay" id="weatherDetail"><button class="close">×</button><div class="detailTitle">Weather · Orcas Island West</div><div class="detailHero"><span id="detailTemp">52°</span> <span style="font-size:.44em;color:var(--muted)" id="detailCondition">Cloudy</span></div><div class="detailGrid"><div class="detail"><span>Humidity</span><strong id="detailHumidity">—</strong></div><div class="detail"><span>Wind</span><strong id="detailWind">—</strong></div><div class="detail"><span>Gust</span><strong id="detailGust">—</strong></div><div class="detail"><span>Rain today</span><strong id="detailRain">—</strong></div><div class="detail"><span>UV</span><strong id="detailUV">—</strong></div><div class="detail"><span>Solar radiation</span><strong id="detailSolarRadiation">—</strong></div><div class="detail"><span>Observed</span><strong id="detailObserved">—</strong></div><div class="detail"><span>Today</span><strong id="detailToday">—</strong></div><div class="detail"><span>Tomorrow</span><strong id="detailTomorrow">—</strong></div></div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="context1Detail"><button class="close">×</button><div class="detailTitle" id="contextWeatherTitle">Weather context</div><div class="detailHero" id="c1Hero">Weather</div><p class="note" id="contextWeatherNote">No unusual weather right now.</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="context2Detail"><button class="close">×</button><div class="detailTitle" id="calendarDetailTitle">Up next</div><div class="detailHero" id="c2Hero">Calendar</div><p class="note" id="calendarDetailNote">Loading calendar…</p><div class="returnHint">Returns to Home after inactivity</div></section>
+<section class="overlay" id="solarDetail"><button class="close">×</button><div class="detailTitle">Home energy · live</div><div class="detailHero" id="solarHero">Solar —</div><div class="detailGrid"><div class="detail"><span>Solar production</span><strong id="solarDetailProduction">—</strong></div><div class="detail"><span>Home use</span><strong id="solarDetailHome">—</strong></div><div class="detail"><span>Grid</span><strong id="solarDetailGrid">—</strong></div><div class="detail"><span>Battery</span><strong id="solarDetailBattery">—</strong></div></div><p class="note" id="solarDetailNote">Waiting for the Mac mini solar bridge.</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="quietDetail1"><button class="close">×</button><div class="detailTitle">Sun</div><div class="detailHero" id="q1Hero">Sunrise 6:43 AM</div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="quietDetail2"><button class="close">×</button><div class="detailTitle">Water</div><div class="detailHero">No flow</div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="moreDetail"><button class="close">×</button><div class="detailTitle">More</div><div class="detailHero" style="font-size:40px">Kitchen tools</div><div class="controls"><button data-min="5">5 min timer</button><button data-min="10">10 min timer</button><button data-min="15">15 min timer</button></div><div class="controls"><button data-preview="morning">Preview morning</button><button data-preview="day">Preview daytime</button><button data-preview="evening">Preview evening</button><button data-preview="night">Preview night</button><button data-preview="auto">Use current time</button></div><p class="note">These preview controls are for development only.</p><div class="returnHint">Returns to Home after inactivity</div></section>
@@ -327,17 +329,108 @@ function renderWeatherContext(w){
   box.classList.toggle('contextMuted',score<45);
 }
 
+
+function solarIsDaylight(w){
+  const today=w?.forecast?.today;
+  const sr=parseLocalISO(today?.sunrise);
+  const ss=parseLocalISO(today?.sunset);
+  if(!sr||!ss) return themeFromSun(w)!=='night';
+  const now=new Date();
+  return now>=sr && now<ss;
+}
+
+function renderSolarContext(w){
+  const box=q('#solarContext');
+  const s=w?.solarSystem;
+
+  box.dataset.score='0';
+  box.style.display='none';
+
+  if(!s || s.stale || !solarIsDaylight(w)) return;
+
+  const solar=Number(s.solarKw);
+  const home=Number(s.homeKw);
+  const grid=Number(s.gridKw);
+  const soc=Number(s.batterySoc);
+  const battery=Number(s.batteryKw);
+
+  if(!Number.isFinite(solar) || !Number.isFinite(home) || !Number.isFinite(grid)) return;
+  if(solar<0.25) return;
+
+  let score=36;
+  let secondary='';
+
+  if(grid < -0.2){
+    secondary=`Sending ${Math.abs(grid).toFixed(1)} kW to grid`;
+    if(grid<=-3) score=68;
+    else if(grid<=-1) score=58;
+    else score=44;
+  }else if(grid > 0.2){
+    secondary=`Home ${home.toFixed(1)} · Grid +${grid.toFixed(1)}`;
+    if(grid>=5) score=74;
+    else if(grid>=2) score=60;
+    else score=42;
+  }else{
+    secondary=`Home ${home.toFixed(1)} · Grid balanced`;
+    score=40;
+  }
+
+  // Battery problems should become important even if solar itself is ordinary.
+  if(Number.isFinite(soc)){
+    if(soc<30) score=Math.max(score,92);
+    else if(soc<50) score=Math.max(score,76);
+  }
+  if(Number.isFinite(battery) && Math.abs(battery)>=1){
+    score=Math.max(score,64);
+  }
+
+  q('#solarLabel').textContent='Solar';
+  q('#solarPrimary').textContent=`${solar.toFixed(1)} kW`;
+  q('#solarSecondary').textContent=secondary;
+
+  q('#solarHero').textContent=`Solar ${solar.toFixed(1)} kW`;
+  q('#solarDetailProduction').textContent=`${solar.toFixed(2)} kW`;
+  q('#solarDetailHome').textContent=`${home.toFixed(2)} kW`;
+
+  if(grid < -0.05){
+    q('#solarDetailGrid').textContent=`Export ${Math.abs(grid).toFixed(2)} kW`;
+  }else if(grid > 0.05){
+    q('#solarDetailGrid').textContent=`Import ${grid.toFixed(2)} kW`;
+  }else{
+    q('#solarDetailGrid').textContent='Balanced';
+  }
+
+  q('#solarDetailBattery').textContent=Number.isFinite(soc)
+    ? `${Math.round(soc)}%${Number.isFinite(battery) && Math.abs(battery)>=0.05 ? ` · ${battery.toFixed(2)} kW` : ''}`
+    : '—';
+
+  const age=Number(s.ageSeconds);
+  const freshText=Number.isFinite(age)
+    ? (age<60 ? 'Updated less than a minute ago' : `Updated ${Math.round(age/60)} min ago`)
+    : 'Live from PVS6';
+
+  q('#solarDetailNote').textContent =
+    `${freshText}. Positive grid flow means importing power; export is shown explicitly.`;
+
+  box.dataset.score=String(score);
+  box.style.display='block';
+  box.classList.toggle('contextPromoted',score>=60);
+  box.classList.toggle('contextAlert',score>=90);
+  box.classList.toggle('contextMuted',score<45);
+}
+
 function updateContextEngine(){
   const items=[
     {el:q('#weatherContext'),score:Number(q('#weatherContext')?.dataset.score||0)},
     {el:q('#calendarContext'),score:Number(q('#calendarContext')?.dataset.score||0)},
+    {el:q('#solarContext'),score:Number(q('#solarContext')?.dataset.score||0)},
     {el:q('#timerItem'),score:timerLeft>0 ? (timerLeft<=120?100:82) : 0}
   ].filter(x=>x.el && x.score>0);
 
   items.sort((a,b)=>b.score-a.score);
 
   const visible=new Set(items.slice(0,2).map(x=>x.el));
-  [q('#weatherContext'),q('#calendarContext'),q('#timerItem')].forEach(el=>{
+  [q('#weatherContext'),q('#calendarContext'),q('#solarContext'),q('#timerItem')].forEach(el=>{
     if(!el) return;
     const intrinsicallyActive = el.id!=='timerItem' || timerLeft>0;
     el.style.display=(visible.has(el)&&intrinsicallyActive)?'block':'none';
@@ -376,6 +469,7 @@ function renderLiveWeather(){
   // Rank only the information that deserves space right now.
   renderCalendar(w);
   renderWeatherContext(w);
+  renderSolarContext(w);
   updateContextEngine();
 
   // Make the quiet sun item contextual.
