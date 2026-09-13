@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Kitchen Dashboard v0.7 Live Calendar</title>
+<title>Kitchen Dashboard v0.8 Context Engine</title>
 <style>
 :root{--bg:#081018;--glow:rgba(83,130,170,.12);--text:#f5f7fa;--muted:#9aa7b4;--faint:#596673;--line:#24303b;--panel:#0c151e;--screen-w:1080px;--screen-h:810px;--preview-scale:1}
 .dashboard[data-theme="morning"]{--bg:#10202b;--glow:rgba(146,194,218,.19);--text:#f5f8fa;--muted:#b1c0c9;--faint:#718792;--line:#314550;--panel:#132630}
@@ -19,7 +19,7 @@
 .dashboard{width:1080px;height:810px;padding:34px 42px 28px;display:grid;grid-template-rows:auto 1fr auto;gap:24px;background:radial-gradient(900px 500px at 20% -8%,var(--glow),transparent 62%),var(--bg);position:relative;transition:background 3s ease,color 3s ease}
 header{display:flex;justify-content:space-between;align-items:flex-start}.now{display:flex;align-items:baseline;gap:22px}.time{font-size:74px;font-weight:730;letter-spacing:-4px;line-height:.9}.date{font-size:20px;color:var(--muted)}.mode{font-size:13px;color:var(--faint);text-transform:uppercase;letter-spacing:.12em;padding-top:8px}
 .stage{display:grid;grid-template-columns:1.2fr .8fr;gap:64px;align-items:center;min-height:0}.heroButton{border:0;background:none;padding:0;text-align:left;cursor:pointer}.heroRow{display:flex;align-items:center;gap:24px}.temp{font-size:108px;font-weight:740;letter-spacing:-6px;line-height:.86}.condition{font-size:30px;font-weight:580}.weatherLine{font-size:21px;color:var(--muted);line-height:1.5;margin-top:14px}.liveDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#79c98b;margin-right:8px;vertical-align:2px}.staleDot{background:#d4a75d}.errorDot{background:#c96f6f}
-.context{border-left:1px solid var(--line);padding-left:42px;display:grid;gap:34px}.contextItem{border:0;background:none;padding:0;text-align:left;cursor:pointer;min-width:0}.label{font-size:13px;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin-bottom:8px}.primary{font-size:27px;font-weight:640;line-height:1.12}.secondary{font-size:16px;color:var(--muted);margin-top:6px;line-height:1.35}.timerItem{display:none}.timerItem.active{display:block}.timerBig{font-size:58px;font-weight:740;letter-spacing:-2px}.timerUrgent .timerBig{font-size:78px}
+.context{border-left:1px solid var(--line);padding-left:42px;display:grid;gap:34px;align-content:center}.contextItem{border:0;background:none;padding:0;text-align:left;cursor:pointer;min-width:0;transition:opacity .35s ease,transform .35s ease}.contextItem.contextPromoted .label{color:var(--muted)}.contextItem.contextPromoted .primary{font-size:31px}.contextItem.contextAlert .primary{font-size:34px}.contextItem.contextMuted{opacity:.72}.label{font-size:13px;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin-bottom:8px}.primary{font-size:27px;font-weight:640;line-height:1.12}.secondary{font-size:16px;color:var(--muted);margin-top:6px;line-height:1.35}.timerItem{display:none}.timerItem.active{display:block}.timerBig{font-size:58px;font-weight:740;letter-spacing:-2px}.timerUrgent .timerBig{font-size:78px}
 footer{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--line);padding-top:18px}.quiet{display:flex;gap:42px;align-items:flex-end;min-height:48px}.quietItem{border:0;background:none;padding:0;text-align:left;cursor:pointer}.quietValue{font-size:18px;margin-top:4px}.more{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
 .overlay{position:absolute;inset:18px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:34px;display:none;box-shadow:0 30px 80px rgba(0,0,0,.55);z-index:5}.overlay.open{display:block}.close{position:absolute;right:24px;top:22px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#13202a;color:white;font-size:24px;cursor:pointer}.detailTitle{font-size:18px;color:var(--muted)}.detailHero{font-size:66px;font-weight:730;margin:12px 0 18px}.detailGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}.detail{border-top:1px solid var(--line);padding:17px 8px}.detail span{display:block;color:var(--muted);font-size:14px}.detail strong{display:block;font-size:24px;margin-top:7px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.controls button{border:1px solid #52606c;background:#111d27;border-radius:10px;padding:12px 16px;cursor:pointer}.note{color:var(--muted);font-size:16px;line-height:1.5;max-width:680px}.returnHint{position:absolute;right:32px;bottom:26px;color:var(--faint);font-size:13px}
 @media(max-width:1100px){html,body{background:var(--bg);width:100%;height:100%;overflow:hidden}.preview-shell{display:block;min-height:0;padding:0}.preview-label{display:none}.ipad-frame{width:100vw;height:100vh;transform:none;border-radius:0;box-shadow:none}.dashboard{width:100vw;height:100vh}}
@@ -27,21 +27,21 @@ footer{display:flex;justify-content:space-between;align-items:flex-end;border-to
 </head>
 <body>
 <div class="preview-shell">
-<div class="preview-label">iPad 10.2″ landscape preview · live weather + calendar</div>
+<div class="preview-label">iPad 10.2″ landscape preview · contextual home</div>
 <div class="ipad-frame">
 <main class="dashboard">
 <header><div class="now"><div class="time" id="clock">7:24</div><div class="date" id="date">Sat, Sep 12</div></div><div class="mode" id="modeLabel">Morning</div></header>
 <section class="stage">
 <button class="heroButton" data-open="weatherDetail"><div class="heroRow"><div class="temp" id="temp">52°</div><div><div class="condition" id="condition">Tempest</div><div class="weatherLine" id="weatherLine"><span class="liveDot" id="liveDot"></span><span id="weatherMeta">Connecting…</span></div></div></div></button>
 <aside class="context">
-<button class="contextItem" data-open="context1Detail"><div class="label" id="context1Label">Rain at 10</div><div class="primary" id="context1Primary">Likely through early afternoon</div><div class="secondary" id="context1Secondary">Moderate showers</div></button>
-<button class="contextItem" data-open="context2Detail"><div class="label" id="context2Label">Next</div><div class="primary" id="context2Primary">Dentist · 9:30</div><div class="secondary" id="context2Secondary">in 2 hours</div></button>
+<button class="contextItem" id="weatherContext" data-open="context1Detail"><div class="label" id="context1Label">Rain at 10</div><div class="primary" id="context1Primary">Likely through early afternoon</div><div class="secondary" id="context1Secondary">Moderate showers</div></button>
+<button class="contextItem" id="calendarContext" data-open="context2Detail"><div class="label" id="context2Label">Next</div><div class="primary" id="context2Primary">Dentist · 9:30</div><div class="secondary" id="context2Secondary">in 2 hours</div></button>
 <div class="contextItem timerItem" id="timerItem"><div class="label">Timer</div><div class="timerBig" id="timerReadout">10:00</div><div class="secondary">Kitchen timer</div></div>
 </aside></section>
 <footer><div class="quiet"><button class="quietItem" data-open="quietDetail1"><div class="label" id="quiet1Label">Sunrise</div><div class="quietValue" id="quiet1Value">6:43 AM</div></button><button class="quietItem" data-open="quietDetail2"><div class="label" id="quiet2Label">Water</div><div class="quietValue" id="quiet2Value">No flow</div></button></div><button class="more" data-open="moreDetail">•••</button></footer>
 
 <section class="overlay" id="weatherDetail"><button class="close">×</button><div class="detailTitle">Weather · Orcas Island West</div><div class="detailHero"><span id="detailTemp">52°</span> <span style="font-size:.44em;color:var(--muted)" id="detailCondition">Cloudy</span></div><div class="detailGrid"><div class="detail"><span>Humidity</span><strong id="detailHumidity">—</strong></div><div class="detail"><span>Wind</span><strong id="detailWind">—</strong></div><div class="detail"><span>Gust</span><strong id="detailGust">—</strong></div><div class="detail"><span>Rain today</span><strong id="detailRain">—</strong></div><div class="detail"><span>UV</span><strong id="detailUV">—</strong></div><div class="detail"><span>Solar radiation</span><strong id="detailSolarRadiation">—</strong></div><div class="detail"><span>Observed</span><strong id="detailObserved">—</strong></div><div class="detail"><span>Today</span><strong id="detailToday">—</strong></div><div class="detail"><span>Tomorrow</span><strong id="detailTomorrow">—</strong></div></div><div class="returnHint">Returns to Home after inactivity</div></section>
-<section class="overlay" id="context1Detail"><button class="close">×</button><div class="detailTitle">Context</div><div class="detailHero" id="c1Hero">Rain around 10 AM</div><p class="note">Expanded contextual detail.</p><div class="returnHint">Returns to Home after inactivity</div></section>
+<section class="overlay" id="context1Detail"><button class="close">×</button><div class="detailTitle" id="contextWeatherTitle">Weather context</div><div class="detailHero" id="c1Hero">Weather</div><p class="note" id="contextWeatherNote">No unusual weather right now.</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="context2Detail"><button class="close">×</button><div class="detailTitle" id="calendarDetailTitle">Up next</div><div class="detailHero" id="c2Hero">Calendar</div><p class="note" id="calendarDetailNote">Loading calendar…</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="quietDetail1"><button class="close">×</button><div class="detailTitle">Sun</div><div class="detailHero" id="q1Hero">Sunrise 6:43 AM</div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="quietDetail2"><button class="close">×</button><div class="detailTitle">Water</div><div class="detailHero">No flow</div><div class="returnHint">Returns to Home after inactivity</div></section>
@@ -62,8 +62,29 @@ function render(){const mode=currentMode(),s=states[mode];q('.dashboard').datase
 function tickClock(){const d=new Date();q('#clock').textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});q('#date').textContent=d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});if(preview==='auto'&&!liveWeather)render()}
 function closeAll(){qa('.overlay').forEach(x=>x.classList.remove('open'));clearTimeout(returnTimer)}function armReturn(){clearTimeout(returnTimer);returnTimer=setTimeout(closeAll,45000)}
 qa('[data-open]').forEach(b=>b.addEventListener('click',()=>{q('#'+b.dataset.open).classList.add('open');armReturn()}));qa('.close').forEach(b=>b.addEventListener('click',closeAll));qa('.overlay').forEach(o=>['click','touchstart'].forEach(ev=>o.addEventListener(ev,armReturn,{passive:true})));qa('[data-preview]').forEach(b=>b.addEventListener('click',()=>{preview=b.dataset.preview;if(preview==='auto'&&liveWeather){renderLiveWeather()}else{render()}closeAll()}));
-function drawTimer(){const m=Math.floor(Math.max(0,timerLeft)/60),s=Math.max(0,timerLeft)%60;q('#timerReadout').textContent=m+':'+String(s).padStart(2,'0');q('#timerItem').classList.toggle('timerUrgent',timerLeft>0&&timerLeft<=120)}
-function startTimer(m){timerLeft=m*60;q('#timerItem').classList.add('active');closeAll();clearInterval(timerHandle);drawTimer();timerHandle=setInterval(()=>{timerLeft--;drawTimer();if(timerLeft<=0){clearInterval(timerHandle);alert('Timer is done.')}},1000)}
+function drawTimer(){
+  const m=Math.floor(Math.max(0,timerLeft)/60),s=Math.max(0,timerLeft)%60;
+  q('#timerReadout').textContent=m+':'+String(s).padStart(2,'0');
+  q('#timerItem').classList.toggle('timerUrgent',timerLeft>0&&timerLeft<=120);
+  if(typeof updateContextEngine==='function') updateContextEngine();
+}
+function startTimer(m){
+  timerLeft=m*60;
+  q('#timerItem').classList.add('active');
+  closeAll();
+  clearInterval(timerHandle);
+  drawTimer();
+  timerHandle=setInterval(()=>{
+    timerLeft--;
+    drawTimer();
+    if(timerLeft<=0){
+      clearInterval(timerHandle);
+      q('#timerItem').classList.remove('active');
+      if(typeof updateContextEngine==='function') updateContextEngine();
+      alert('Timer is done.');
+    }
+  },1000);
+}
 qa('[data-min]').forEach(b=>b.addEventListener('click',()=>startTimer(+b.dataset.min)));
 
 const WEATHER_API='https://flattop-weather-api.lee-060.workers.dev/';
@@ -164,35 +185,62 @@ function nextCalendarEvent(events){
     .sort((a,b)=>a._start-b._start)[0] || null;
 }
 function renderCalendar(w){
-  const box=q('#context2Label')?.parentElement;
+  const box=q('#calendarContext');
   const event=nextCalendarEvent(w?.calendar);
 
+  box.dataset.score='0';
+
   if(!event){
-    if(box) box.style.display='none';
+    box.style.display='none';
     q('#calendarDetailTitle').textContent='Calendar';
     q('#c2Hero').textContent='Nothing upcoming';
     q('#calendarDetailNote').textContent='No events in the next few days.';
     return;
   }
 
-  if(box) box.style.display='block';
-
   const start=event._start;
+  const end=event._end;
   const now=new Date();
   const tomorrow=tomorrowFrom(now);
   const isToday=sameDay(start,now);
   const isTomorrow=sameDay(start,tomorrow);
-  const hour=now.getHours();
+  const minsToStart=Math.round((start-now)/60000);
+  const ongoing=start<=now && (!end || end>now);
 
   let label='Next';
-  if(isTomorrow && hour>=17) label='First tomorrow';
-  else if(isTomorrow) label='Tomorrow';
-  else if(!isToday) label=formatEventDate(event);
+  let secondary='';
+  let score=35;
+
+  if(ongoing){
+    label='Now';
+    score=96;
+    if(end) secondary='until '+end.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  }else if(isToday && minsToStart<=60){
+    label='Next';
+    score=90;
+    secondary=relativeEventText(event);
+  }else if(isToday && minsToStart<=180){
+    label='Next';
+    score=72;
+    secondary=relativeEventText(event);
+  }else if(isToday){
+    label='Later today';
+    score=54;
+  }else if(isTomorrow && now.getHours()>=17){
+    label='First tomorrow';
+    score=50;
+  }else if(isTomorrow){
+    label='Tomorrow';
+    score=42;
+  }else{
+    label=formatEventDate(event);
+    score=32;
+  }
 
   const time=formatEventTime(event);
   q('#context2Label').textContent=label;
-  q('#context2Primary').textContent=event.title + (time ? ` · ${time}` : '');
-  q('#context2Secondary').textContent=isToday ? relativeEventText(event) : '';
+  q('#context2Primary').textContent=event.title + (time && !ongoing ? ` · ${time}` : '');
+  q('#context2Secondary').textContent=secondary;
 
   q('#calendarDetailTitle').textContent=label;
   q('#c2Hero').textContent=event.title;
@@ -205,6 +253,97 @@ function renderCalendar(w){
     detail += `–${endText}`;
   }
   q('#calendarDetailNote').textContent=detail;
+
+  box.dataset.score=String(score);
+  box.style.display='block';
+  box.classList.toggle('contextPromoted',score>=72);
+  box.classList.toggle('contextAlert',score>=95);
+  box.classList.toggle('contextMuted',score<45);
+}
+
+function renderWeatherContext(w){
+  const box=q('#weatherContext');
+  const now=new Date();
+  const mode=themeFromSun(w);
+  const rain=w?.forecast?.rainSoon;
+  const gust=Number(w?.wind?.gust ?? 0);
+  const avg=Number(w?.wind?.average ?? 0);
+  const dir=w?.wind?.direction || '';
+  const tomorrow=w?.forecast?.tomorrow;
+
+  let score=0, label='', primary='', secondary='', hero='', note='';
+
+  if(rain?.time){
+    const rainTime=parseLocalISO(rain.time);
+    const hoursAway=rainTime ? (rainTime-now)/3600000 : 99;
+    score=hoursAway<=3 ? 86 : 62;
+    label=`Rain around ${formatClock(rain.time)}`;
+    primary=`${Math.round(rain.probability)}% chance`;
+    secondary=hoursAway<=3 ? 'Worth planning around' : 'Later today';
+    hero=`Rain around ${formatClock(rain.time)}`;
+    note=`Forecast precipitation probability reaches ${Math.round(rain.probability)}%.`;
+  }
+
+  // Strong wind can outrank distant rain.
+  if(gust>=25){
+    const windScore=gust>=35 ? 94 : 80;
+    if(windScore>score){
+      score=windScore;
+      label='Wind';
+      primary=`Gusts ${Math.round(gust)} mph`;
+      secondary=`${dir}${dir?' · ':''}${Math.round(avg)} mph sustained`;
+      hero=`Wind gusts ${Math.round(gust)} mph`;
+      note=`Current wind is ${Math.round(avg)} mph${dir?' from '+dir:''}.`;
+    }
+  }
+
+  // In the evening/night, tomorrow becomes useful when nothing more urgent exists.
+  if(score===0 && (mode==='evening' || mode==='night') && tomorrow){
+    score=38;
+    label='Tomorrow';
+    primary=`${tomorrow.condition} · ${Math.round(tomorrow.high)}°`;
+    secondary=`Low ${Math.round(tomorrow.low)}° · Rain ${Math.round(tomorrow.rainChance||0)}%`;
+    hero=`Tomorrow · ${tomorrow.condition}`;
+    note=`High ${Math.round(tomorrow.high)}°, low ${Math.round(tomorrow.low)}°, ${Math.round(tomorrow.rainChance||0)}% chance of rain.`;
+  }
+
+  if(score===0){
+    box.style.display='none';
+    box.dataset.score='0';
+    return;
+  }
+
+  q('#context1Label').textContent=label;
+  q('#context1Primary').textContent=primary;
+  q('#context1Secondary').textContent=secondary;
+  q('#contextWeatherTitle').textContent=label;
+  q('#c1Hero').textContent=hero;
+  q('#contextWeatherNote').textContent=note;
+
+  box.dataset.score=String(score);
+  box.style.display='block';
+  box.classList.toggle('contextPromoted',score>=75);
+  box.classList.toggle('contextAlert',score>=92);
+  box.classList.toggle('contextMuted',score<45);
+}
+
+function updateContextEngine(){
+  const items=[
+    {el:q('#weatherContext'),score:Number(q('#weatherContext')?.dataset.score||0)},
+    {el:q('#calendarContext'),score:Number(q('#calendarContext')?.dataset.score||0)},
+    {el:q('#timerItem'),score:timerLeft>0 ? (timerLeft<=120?100:82) : 0}
+  ].filter(x=>x.el && x.score>0);
+
+  items.sort((a,b)=>b.score-a.score);
+
+  const visible=new Set(items.slice(0,2).map(x=>x.el));
+  [q('#weatherContext'),q('#calendarContext'),q('#timerItem')].forEach(el=>{
+    if(!el) return;
+    const intrinsicallyActive = el.id!=='timerItem' || timerLeft>0;
+    el.style.display=(visible.has(el)&&intrinsicallyActive)?'block':'none';
+  });
+
+  items.slice(0,2).forEach((x,i)=>x.el.style.order=String(i+1));
 }
 
 function renderLiveWeather(){
@@ -229,12 +368,15 @@ function renderLiveWeather(){
   const today=w.forecast?.today, tomorrow=w.forecast?.tomorrow;
   q('#detailToday').textContent=today ? `${Math.round(today.high)}° / ${Math.round(today.low)}°` : '—';
   q('#detailTomorrow').textContent=tomorrow ? `${tomorrow.condition} · ${Math.round(tomorrow.high)}°` : '—';
-  renderCalendar(w);
-
   // Let actual sunrise/sunset drive the visual atmosphere.
   const liveTheme=themeFromSun(w);
   q('.dashboard').dataset.theme=liveTheme;
   q('#modeLabel').textContent=liveTheme[0].toUpperCase()+liveTheme.slice(1);
+
+  // Rank only the information that deserves space right now.
+  renderCalendar(w);
+  renderWeatherContext(w);
+  updateContextEngine();
 
   // Make the quiet sun item contextual.
   const now=new Date();
