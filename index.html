@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Kitchen Dashboard v0.6 Live Weather</title>
+<title>Kitchen Dashboard v0.7 Live Calendar</title>
 <style>
 :root{--bg:#081018;--glow:rgba(83,130,170,.12);--text:#f5f7fa;--muted:#9aa7b4;--faint:#596673;--line:#24303b;--panel:#0c151e;--screen-w:1080px;--screen-h:810px;--preview-scale:1}
 .dashboard[data-theme="morning"]{--bg:#10202b;--glow:rgba(146,194,218,.19);--text:#f5f8fa;--muted:#b1c0c9;--faint:#718792;--line:#314550;--panel:#132630}
@@ -27,7 +27,7 @@ footer{display:flex;justify-content:space-between;align-items:flex-end;border-to
 </head>
 <body>
 <div class="preview-shell">
-<div class="preview-label">iPad 10.2″ landscape preview · live Tempest</div>
+<div class="preview-label">iPad 10.2″ landscape preview · live weather + calendar</div>
 <div class="ipad-frame">
 <main class="dashboard">
 <header><div class="now"><div class="time" id="clock">7:24</div><div class="date" id="date">Sat, Sep 12</div></div><div class="mode" id="modeLabel">Morning</div></header>
@@ -42,7 +42,7 @@ footer{display:flex;justify-content:space-between;align-items:flex-end;border-to
 
 <section class="overlay" id="weatherDetail"><button class="close">×</button><div class="detailTitle">Weather · Orcas Island West</div><div class="detailHero"><span id="detailTemp">52°</span> <span style="font-size:.44em;color:var(--muted)" id="detailCondition">Cloudy</span></div><div class="detailGrid"><div class="detail"><span>Humidity</span><strong id="detailHumidity">—</strong></div><div class="detail"><span>Wind</span><strong id="detailWind">—</strong></div><div class="detail"><span>Gust</span><strong id="detailGust">—</strong></div><div class="detail"><span>Rain today</span><strong id="detailRain">—</strong></div><div class="detail"><span>UV</span><strong id="detailUV">—</strong></div><div class="detail"><span>Solar radiation</span><strong id="detailSolarRadiation">—</strong></div><div class="detail"><span>Observed</span><strong id="detailObserved">—</strong></div><div class="detail"><span>Today</span><strong id="detailToday">—</strong></div><div class="detail"><span>Tomorrow</span><strong id="detailTomorrow">—</strong></div></div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="context1Detail"><button class="close">×</button><div class="detailTitle">Context</div><div class="detailHero" id="c1Hero">Rain around 10 AM</div><p class="note">Expanded contextual detail.</p><div class="returnHint">Returns to Home after inactivity</div></section>
-<section class="overlay" id="context2Detail"><button class="close">×</button><div class="detailTitle">Up next</div><div class="detailHero" id="c2Hero">Dentist · 9:30</div><p class="note">Calendar details would appear here.</p><div class="returnHint">Returns to Home after inactivity</div></section>
+<section class="overlay" id="context2Detail"><button class="close">×</button><div class="detailTitle" id="calendarDetailTitle">Up next</div><div class="detailHero" id="c2Hero">Calendar</div><p class="note" id="calendarDetailNote">Loading calendar…</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="quietDetail1"><button class="close">×</button><div class="detailTitle">Sun</div><div class="detailHero" id="q1Hero">Sunrise 6:43 AM</div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="quietDetail2"><button class="close">×</button><div class="detailTitle">Water</div><div class="detailHero">No flow</div><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="moreDetail"><button class="close">×</button><div class="detailTitle">More</div><div class="detailHero" style="font-size:40px">Kitchen tools</div><div class="controls"><button data-min="5">5 min timer</button><button data-min="10">10 min timer</button><button data-min="15">15 min timer</button></div><div class="controls"><button data-preview="morning">Preview morning</button><button data-preview="day">Preview daytime</button><button data-preview="evening">Preview evening</button><button data-preview="night">Preview night</button><button data-preview="auto">Use current time</button></div><p class="note">These preview controls are for development only.</p><div class="returnHint">Returns to Home after inactivity</div></section>
@@ -58,7 +58,7 @@ setPreviewScale();window.addEventListener('resize',setPreviewScale);
 function currentMode(){if(preview!=='auto')return preview;const h=new Date().getHours();return h<6?'night':h<10?'morning':h<18?'day':h<22?'evening':'night'}
 const states={morning:{label:'Morning',temp:'52°',condition:'Cloudy',line:'Rain around 10 AM',c1l:'Rain at 10',c1p:'Likely through early afternoon',c1s:'Moderate showers',c2l:'Next',c2p:'Dentist · 9:30',c2s:'in 2 hours',q1l:'Sunrise',q1v:'6:43 AM',q2l:'Water',q2v:'No flow',c1hero:'Rain around 10 AM',q1hero:'Sunrise 6:43 AM'},day:{label:'Daytime',temp:'61°',condition:'Partly cloudy',line:'Breezy this afternoon',c1l:'Solar',c1p:'4.1 kW',c1s:'Strong production',c2l:'Next',c2p:'Dinner with Jim · 5:30',c2s:'in 4 hours',q1l:'Water',q1v:'No flow',q2l:'Sunset',q2v:'7:24 PM',c1hero:'Solar · 4.1 kW',q1hero:'Water · No flow'},evening:{label:'Evening',temp:'55°',condition:'Cloudy',line:'Quiet overnight',c1l:'Tomorrow',c1p:'Rain · 60°',c1s:'Clearing in the afternoon',c2l:'First tomorrow',c2p:'Meeting · 9:00',c2s:'',q1l:'Sunset',q1v:'7:24 PM',q2l:'Water',q2v:'No flow',c1hero:'Tomorrow · Rain',q1hero:'Sunset 7:24 PM'},
 night:{label:'Night',temp:'51°',condition:'Cloudy',line:'Quiet overnight',c1l:'Tomorrow',c1p:'Rain · 60°',c1s:'Clearing in the afternoon',c2l:'First tomorrow',c2p:'Meeting · 9:00',c2s:'',q1l:'Sunrise',q1v:'6:44 AM',q2l:'',q2v:'',c1hero:'Tomorrow · Rain',q1hero:'Sunrise 6:44 AM'}};
-function render(){const mode=currentMode(),s=states[mode];q('.dashboard').dataset.theme=mode;q('#modeLabel').textContent=s.label;q('#context1Label').textContent=s.c1l;q('#context1Primary').textContent=s.c1p;q('#context1Secondary').textContent=s.c1s;q('#context2Label').textContent=s.c2l;q('#context2Primary').textContent=s.c2p;q('#context2Secondary').textContent=s.c2s;q('#quiet1Label').textContent=s.q1l;q('#quiet1Value').textContent=s.q1v;q('#quiet2Label').textContent=s.q2l;q('#quiet2Value').textContent=s.q2v;q('#quiet2Label').parentElement.style.display=s.q2l?'block':'none';q('#c1Hero').textContent=s.c1hero;q('#c2Hero').textContent=s.c2p;q('#q1Hero').textContent=s.q1hero}
+function render(){const mode=currentMode(),s=states[mode];q('.dashboard').dataset.theme=mode;q('#modeLabel').textContent=s.label;q('#context1Label').textContent=s.c1l;q('#context1Primary').textContent=s.c1p;q('#context1Secondary').textContent=s.c1s;if(!liveWeather){q('#context2Label').textContent=s.c2l;q('#context2Primary').textContent=s.c2p;q('#context2Secondary').textContent=s.c2s;}q('#quiet1Label').textContent=s.q1l;q('#quiet1Value').textContent=s.q1v;q('#quiet2Label').textContent=s.q2l;q('#quiet2Value').textContent=s.q2v;q('#quiet2Label').parentElement.style.display=s.q2l?'block':'none';q('#c1Hero').textContent=s.c1hero;q('#c2Hero').textContent=s.c2p;q('#q1Hero').textContent=s.q1hero}
 function tickClock(){const d=new Date();q('#clock').textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});q('#date').textContent=d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});if(preview==='auto'&&!liveWeather)render()}
 function closeAll(){qa('.overlay').forEach(x=>x.classList.remove('open'));clearTimeout(returnTimer)}function armReturn(){clearTimeout(returnTimer);returnTimer=setTimeout(closeAll,45000)}
 qa('[data-open]').forEach(b=>b.addEventListener('click',()=>{q('#'+b.dataset.open).classList.add('open');armReturn()}));qa('.close').forEach(b=>b.addEventListener('click',closeAll));qa('.overlay').forEach(o=>['click','touchstart'].forEach(ev=>o.addEventListener(ev,armReturn,{passive:true})));qa('[data-preview]').forEach(b=>b.addEventListener('click',()=>{preview=b.dataset.preview;if(preview==='auto'&&liveWeather){renderLiveWeather()}else{render()}closeAll()}));
@@ -121,6 +121,92 @@ function forecastLine(w){
   return `Humidity ${Math.round(w.humidity)}% · Wind ${w.wind?.direction||''} ${fmt1(w.wind?.average)} mph`;
 }
 
+
+function parseEventDate(s){
+  return s ? new Date(s) : null;
+}
+function sameDay(a,b){
+  return a && b &&
+    a.getFullYear()===b.getFullYear() &&
+    a.getMonth()===b.getMonth() &&
+    a.getDate()===b.getDate();
+}
+function tomorrowFrom(d){
+  const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+  return t;
+}
+function formatEventTime(event){
+  if(event.allDay) return 'All day';
+  const d=parseEventDate(event.start);
+  return d ? d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}) : '';
+}
+function formatEventDate(event){
+  const d=parseEventDate(event.start);
+  if(!d) return '';
+  return d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+}
+function relativeEventText(event){
+  const start=parseEventDate(event.start);
+  if(!start) return '';
+  const diff=start-Date.now();
+  const mins=Math.round(diff/60000);
+  if(mins<=0 && mins>-120) return 'now';
+  if(mins<60) return `in ${Math.max(1,mins)} min`;
+  const hours=Math.round(mins/60);
+  if(hours<24) return `in ${hours} hr${hours===1?'':'s'}`;
+  return formatEventDate(event);
+}
+function nextCalendarEvent(events){
+  const now=Date.now();
+  return (events||[])
+    .map(e=>({...e,_start:parseEventDate(e.start),_end:parseEventDate(e.end)}))
+    .filter(e=>e._start && (!e._end || e._end.getTime()>now))
+    .sort((a,b)=>a._start-b._start)[0] || null;
+}
+function renderCalendar(w){
+  const box=q('#context2Label')?.parentElement;
+  const event=nextCalendarEvent(w?.calendar);
+
+  if(!event){
+    if(box) box.style.display='none';
+    q('#calendarDetailTitle').textContent='Calendar';
+    q('#c2Hero').textContent='Nothing upcoming';
+    q('#calendarDetailNote').textContent='No events in the next few days.';
+    return;
+  }
+
+  if(box) box.style.display='block';
+
+  const start=event._start;
+  const now=new Date();
+  const tomorrow=tomorrowFrom(now);
+  const isToday=sameDay(start,now);
+  const isTomorrow=sameDay(start,tomorrow);
+  const hour=now.getHours();
+
+  let label='Next';
+  if(isTomorrow && hour>=17) label='First tomorrow';
+  else if(isTomorrow) label='Tomorrow';
+  else if(!isToday) label=formatEventDate(event);
+
+  const time=formatEventTime(event);
+  q('#context2Label').textContent=label;
+  q('#context2Primary').textContent=event.title + (time ? ` · ${time}` : '');
+  q('#context2Secondary').textContent=isToday ? relativeEventText(event) : '';
+
+  q('#calendarDetailTitle').textContent=label;
+  q('#c2Hero').textContent=event.title;
+  let detail = event.allDay
+    ? `${formatEventDate(event)} · All day`
+    : `${formatEventDate(event)} · ${formatEventTime(event)}`;
+
+  if(!event.allDay && event._end){
+    const endText=event._end.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+    detail += `–${endText}`;
+  }
+  q('#calendarDetailNote').textContent=detail;
+}
+
 function renderLiveWeather(){
   if(!liveWeather) return;
   const w=liveWeather;
@@ -143,6 +229,7 @@ function renderLiveWeather(){
   const today=w.forecast?.today, tomorrow=w.forecast?.tomorrow;
   q('#detailToday').textContent=today ? `${Math.round(today.high)}° / ${Math.round(today.low)}°` : '—';
   q('#detailTomorrow').textContent=tomorrow ? `${tomorrow.condition} · ${Math.round(tomorrow.high)}°` : '—';
+  renderCalendar(w);
 
   // Let actual sunrise/sunset drive the visual atmosphere.
   const liveTheme=themeFromSun(w);
