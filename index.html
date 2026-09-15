@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Kitchen Dashboard v0.10 Timer Controls</title>
+<title>Kitchen Dashboard · Rain 24</title>
 <style>
 :root{--bg:#081018;--glow:rgba(83,130,170,.12);--text:#f5f7fa;--muted:#9aa7b4;--faint:#596673;--line:#24303b;--panel:#0c151e;--screen-w:1080px;--screen-h:810px;--preview-scale:1}
 .dashboard[data-theme="morning"]{--bg:#10202b;--glow:rgba(146,194,218,.19);--text:#f5f8fa;--muted:#b1c0c9;--faint:#718792;--line:#314550;--panel:#132630}
@@ -22,6 +22,19 @@ header{display:flex;justify-content:space-between;align-items:flex-start}.now{di
 .context{border-left:1px solid var(--line);padding-left:42px;display:grid;gap:34px;align-content:center}.contextItem{border:0;background:none;padding:0;text-align:left;cursor:pointer;min-width:0;transition:opacity .35s ease,transform .35s ease}.contextItem.contextPromoted .label{color:var(--muted)}.contextItem.contextPromoted .primary{font-size:31px}.contextItem.contextAlert .primary{font-size:34px}.contextItem.contextMuted{opacity:.72}.label{font-size:13px;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin-bottom:8px}.primary{font-size:27px;font-weight:640;line-height:1.12}.secondary{font-size:16px;color:var(--muted);margin-top:6px;line-height:1.35}.timerItem{display:none}.timerItem.active{display:block}.timerBig{font-size:58px;font-weight:740;letter-spacing:-2px}.timerUrgent .timerBig{font-size:78px}.timerDone .timerBig{font-size:68px}.timerControlHero{font-size:92px;font-weight:760;letter-spacing:-4px;margin:18px 0 12px}.timerStatus{font-size:18px;color:var(--muted);margin-bottom:28px}.timerDanger{border-color:#8b5555!important}
 footer{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--line);padding-top:18px}.quiet{display:flex;gap:42px;align-items:flex-end;min-height:48px}.quietItem{border:0;background:none;padding:0;text-align:left;cursor:pointer}.quietValue{font-size:18px;margin-top:4px}.more{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
 .overlay{position:absolute;inset:18px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:34px;display:none;box-shadow:0 30px 80px rgba(0,0,0,.55);z-index:5}.overlay.open{display:block}.close{position:absolute;right:24px;top:22px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#13202a;color:white;font-size:24px;cursor:pointer}.detailTitle{font-size:18px;color:var(--muted)}.detailHero{font-size:66px;font-weight:730;margin:12px 0 18px}.detailGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}.detail{border-top:1px solid var(--line);padding:17px 8px}.detail span{display:block;color:var(--muted);font-size:14px}.detail strong{display:block;font-size:24px;margin-top:7px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.controls button{border:1px solid #52606c;background:#111d27;border-radius:10px;padding:12px 16px;cursor:pointer}.note{color:var(--muted);font-size:16px;line-height:1.5;max-width:680px}.returnHint{position:absolute;right:32px;bottom:26px;color:var(--faint);font-size:13px}
+
+.rainPanel{margin-top:24px;border-top:1px solid var(--line);padding-top:18px}
+.rainPanelHead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.rainPanelTitle{font-size:15px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.rainPanelSummary{font-size:16px;color:var(--muted)}
+.rainChart{height:142px;display:grid;grid-template-columns:repeat(24,1fr);gap:4px;align-items:end;border-bottom:1px solid var(--line);padding:0 2px}
+.rainBarWrap{height:100%;display:flex;align-items:flex-end;position:relative}
+.rainBar{width:100%;min-height:2px;border-radius:4px 4px 0 0;background:rgba(124,174,214,.30);transition:height .35s ease,background .35s ease}
+.rainBar.medium{background:rgba(124,174,214,.58)}
+.rainBar.high{background:rgba(124,174,214,.92)}
+.rainAxis{display:grid;grid-template-columns:repeat(24,1fr);gap:4px;margin-top:8px;color:var(--faint);font-size:12px}
+.rainAxis span{white-space:nowrap;transform:translateX(-2px)}
+.rainPeak{color:var(--text)}
 @media(max-width:1100px){html,body{background:var(--bg);width:100%;height:100%;overflow:hidden}.preview-shell{display:block;min-height:0;padding:0}.preview-label{display:none}.ipad-frame{width:100vw;height:100vh;transform:none;border-radius:0;box-shadow:none}.dashboard{width:100vw;height:100vh}}
 </style>
 </head>
@@ -41,7 +54,13 @@ footer{display:flex;justify-content:space-between;align-items:flex-end;border-to
 </aside></section>
 <footer><div class="quiet"><button class="quietItem" data-open="quietDetail1"><div class="label" id="quiet1Label">Sunrise</div><div class="quietValue" id="quiet1Value">6:43 AM</div></button><button class="quietItem" data-open="quietDetail2"><div class="label" id="quiet2Label">Water</div><div class="quietValue" id="quiet2Value">No flow</div></button></div><button class="more" data-open="moreDetail">•••</button></footer>
 
-<section class="overlay" id="weatherDetail"><button class="close">×</button><div class="detailTitle">Weather · Orcas Island West</div><div class="detailHero"><span id="detailTemp">52°</span> <span style="font-size:.44em;color:var(--muted)" id="detailCondition">Cloudy</span></div><div class="detailGrid"><div class="detail"><span>Humidity</span><strong id="detailHumidity">—</strong></div><div class="detail"><span>Wind</span><strong id="detailWind">—</strong></div><div class="detail"><span>Gust</span><strong id="detailGust">—</strong></div><div class="detail"><span>Rain today</span><strong id="detailRain">—</strong></div><div class="detail"><span>UV</span><strong id="detailUV">—</strong></div><div class="detail"><span>Solar radiation</span><strong id="detailSolarRadiation">—</strong></div><div class="detail"><span>Observed</span><strong id="detailObserved">—</strong></div><div class="detail"><span>Today</span><strong id="detailToday">—</strong></div><div class="detail"><span>Tomorrow</span><strong id="detailTomorrow">—</strong></div></div><div class="returnHint">Returns to Home after inactivity</div></section>
+<section class="overlay" id="weatherDetail"><button class="close">×</button><div class="detailTitle">Weather · Orcas Island West</div><div class="detailHero"><span id="detailTemp">52°</span> <span style="font-size:.44em;color:var(--muted)" id="detailCondition">Cloudy</span></div><div class="detailGrid"><div class="detail"><span>Humidity</span><strong id="detailHumidity">—</strong></div><div class="detail"><span>Wind</span><strong id="detailWind">—</strong></div><div class="detail"><span>Gust</span><strong id="detailGust">—</strong></div><div class="detail"><span>Rain today</span><strong id="detailRain">—</strong></div><div class="detail"><span>UV</span><strong id="detailUV">—</strong></div><div class="detail"><span>Solar radiation</span><strong id="detailSolarRadiation">—</strong></div><div class="detail"><span>Observed</span><strong id="detailObserved">—</strong></div><div class="detail"><span>Today</span><strong id="detailToday">—</strong></div><div class="detail"><span>Tomorrow</span><strong id="detailTomorrow">—</strong></div></div>
+<div class="rainPanel">
+  <div class="rainPanelHead"><div class="rainPanelTitle">Rain · next 24 hours</div><div class="rainPanelSummary" id="rain24Summary">Loading forecast…</div></div>
+  <div class="rainChart" id="rain24Chart"></div>
+  <div class="rainAxis" id="rain24Axis"></div>
+</div>
+<div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="context1Detail"><button class="close">×</button><div class="detailTitle" id="contextWeatherTitle">Weather context</div><div class="detailHero" id="c1Hero">Weather</div><p class="note" id="contextWeatherNote">No unusual weather right now.</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="context2Detail"><button class="close">×</button><div class="detailTitle" id="calendarDetailTitle">Up next</div><div class="detailHero" id="c2Hero">Calendar</div><p class="note" id="calendarDetailNote">Loading calendar…</p><div class="returnHint">Returns to Home after inactivity</div></section>
 <section class="overlay" id="timerDetail"><button class="close">×</button><div class="detailTitle">Kitchen timer</div><div class="timerControlHero" id="timerDetailReadout">10:00</div><div class="timerStatus" id="timerStatus">Counting down</div><div class="controls" id="timerRunningControls"><button data-add-seconds="60">+1 min</button><button data-add-seconds="300">+5 min</button><button class="timerDanger" id="cancelTimer">Cancel timer</button></div><div class="controls" id="timerDoneControls" style="display:none"><button id="dismissTimer">Dismiss</button></div><div class="returnHint">Returns to Home after inactivity</div></section>
@@ -299,11 +318,64 @@ function renderCalendar(w){
   box.classList.toggle('contextMuted',score<45);
 }
 
+
+function rain24Stats(w){
+  const hours=(w?.forecast?.rain24 || [])
+    .map(x=>({time:x.time,probability:Number(x.probability||0)}))
+    .filter(x=>x.time && Number.isFinite(x.probability))
+    .slice(0,24);
+  if(!hours.length) return {hours,peak:0,peakItem:null,firstMeaningful:null};
+  let peakItem=hours[0];
+  for(const x of hours) if(x.probability>peakItem.probability) peakItem=x;
+  const firstMeaningful=hours.find(x=>x.probability>=40) || null;
+  return {hours,peak:peakItem.probability,peakItem,firstMeaningful};
+}
+
+function renderRain24(w){
+  const chart=q('#rain24Chart'), axis=q('#rain24Axis'), summary=q('#rain24Summary');
+  if(!chart || !axis || !summary) return;
+  const {hours,peak,peakItem}=rain24Stats(w);
+  chart.innerHTML='';
+  axis.innerHTML='';
+  if(!hours.length){
+    summary.textContent='Forecast unavailable';
+    return;
+  }
+
+  summary.textContent = peak>=40 && peakItem
+    ? `Peaks at ${Math.round(peak)}% around ${formatClock(peakItem.time)}`
+    : peak>=15
+      ? `Highest chance ${Math.round(peak)}%`
+      : 'Little rain expected';
+
+  hours.forEach((item,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='rainBarWrap';
+    wrap.title=`${formatClock(item.time)} · ${Math.round(item.probability)}%`;
+    const bar=document.createElement('div');
+    const p=Math.max(0,Math.min(100,item.probability));
+    bar.className='rainBar'+(p>=60?' high':p>=30?' medium':'');
+    // A tiny baseline keeps dry hours legible without pretending there is rain.
+    bar.style.height=(p===0?2:Math.max(4,p))+'%';
+    wrap.appendChild(bar);
+    chart.appendChild(wrap);
+
+    const tick=document.createElement('span');
+    const d=parseLocalISO(item.time);
+    // Label every six hours plus the first point.
+    tick.textContent=(i===0 || i%6===0) && d
+      ? (i===0?'Now':d.toLocaleTimeString([],{hour:'numeric'}))
+      : '';
+    axis.appendChild(tick);
+  });
+}
+
 function renderWeatherContext(w){
   const box=q('#weatherContext');
   const now=new Date();
   const mode=themeFromSun(w);
   const rain=w?.forecast?.rainSoon;
+  const rain24=rain24Stats(w);
   const gust=Number(w?.wind?.gust ?? 0);
   const avg=Number(w?.wind?.average ?? 0);
   const dir=w?.wind?.direction || '';
@@ -320,6 +392,22 @@ function renderWeatherContext(w){
     secondary=hoursAway<=3 ? 'Worth planning around' : 'Later today';
     hero=`Rain around ${formatClock(rain.time)}`;
     note=`Forecast precipitation probability reaches ${Math.round(rain.probability)}%.`;
+  }
+
+
+  // Lee enjoys incoming rain: promote a meaningful 24-hour rain signal
+  // even when the older rainSoon rule has not already supplied one.
+  if(score===0 && rain24.firstMeaningful){
+    const item=rain24.firstMeaningful;
+    const rainTime=parseLocalISO(item.time);
+    const hoursAway=rainTime ? (rainTime-now)/3600000 : 99;
+    const peak=rain24.peak;
+    score=hoursAway<=6 ? 78 : 64;
+    label=hoursAway<=6 ? 'Rain coming' : 'Rain ahead';
+    primary=`${Math.round(peak)}% chance`;
+    secondary=`Around ${formatClock(item.time)}`;
+    hero=`Rain coming · ${Math.round(peak)}%`;
+    note=`Rain chances rise during the next 24 hours, peaking near ${Math.round(peak)}%.`;
   }
 
   // Strong wind can outrank distant rain.
@@ -497,6 +585,7 @@ function renderLiveWeather(){
   const today=w.forecast?.today, tomorrow=w.forecast?.tomorrow;
   q('#detailToday').textContent=today ? `${Math.round(today.high)}° / ${Math.round(today.low)}°` : '—';
   q('#detailTomorrow').textContent=tomorrow ? `${tomorrow.condition} · ${Math.round(tomorrow.high)}°` : '—';
+  renderRain24(w);
   // Let actual sunrise/sunset drive the visual atmosphere.
   const liveTheme=themeFromSun(w);
   q('.dashboard').dataset.theme=liveTheme;
